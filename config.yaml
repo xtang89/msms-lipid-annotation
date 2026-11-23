@@ -1,0 +1,37 @@
+# Settings for the MS/MS annotation skill. Change values here, not in the scripts.
+
+# m/z tolerance for precursor and fragment matching
+tolerance_ppm: 10
+# minimum absolute tolerance for small fragments (Da); the larger of ppm and this value is used
+min_tolerance_da: 0.002
+# precursor tolerance when the precursor m/z comes from the scan filter (2 decimals)
+filter_precursor_tolerance_da: 0.01
+# window (Da) around the filter m/z to find the precursor peak in MS1 or in the MS2 spectrum
+precursor_search_da: 0.01
+
+# a peak counts only if its intensity >= this fraction of the base peak (full m/z range)
+intensity_threshold: 0.01
+# peaks below this fraction are not saved in results.json (keeps the file small)
+save_floor: 0.001
+
+# averaging method: "thermo" (Thermo library average, as in FreeStyle/Xcalibur) or "own"
+# ("own" averages the centroided scans by clustering peaks within tolerance_ppm)
+average_method: thermo     # thermo (Thermo averager, needs fisher_py) or own; without fisher_py, own is used
+
+# adducts to search for each polarity (must exist in the rule files)
+adducts:
+  positive: ["[M+H]+", "[M+Na]+", "[M+K]+"]
+  negative: ["[M-H]-", "[M+HCOO]-"]
+
+# number of unexplained peaks to list for each window
+n_unexplained: 10
+
+# plot settings (Origin)
+plot:
+  width_cm: 8.5          # 8.5 single column, 17.8 double column
+  height_cm: 6.0
+  font: Arial
+  font_size_pt: 9
+  label_decimals: 4
+  y_max_percent: 110
+  tif_dpi: 600

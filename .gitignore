@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+
+# Raw data and results (do not upload tissue data)
+*.raw
+*.RAW
+*_annotation/
+data/test*/
+
+# Local files
+internal/
+_to_delete/
+*.log

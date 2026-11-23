@@ -1,0 +1,290 @@
+# Rule file: positive mode. Version 0.7.0 (2026-11-22). Only rules confirmed in the literature are included.
+# References: see references.md in this folder.
+#
+# Fields
+#   fragments        class-level fragments. type ion: ion formula without charge (charge +1).
+#                    type nl: neutral loss from the precursor.
+#   role             diagnostic = specific to the head group with this adduct; one is enough for the class
+#                    supporting = agrees with the class; increases confidence; cannot identify the class alone
+#   chain_fragments  templates from chain_templates; one fragment per possible chain (n:d).
+#                    plus: formula added to the neutral loss.
+#   class_rule       chains = class with no head group (TG, DG, MG): the class evidence comes from chain fragments
+#
+# Decision for each candidate (a fragment counts only above the intensity threshold)
+#   high      >= 2 diagnostic, or 1 diagnostic + >= 1 supporting        -> MS/MS confirmed
+#   medium    1 diagnostic only                                          -> MS/MS confirmed
+#   low       supporting only                                            -> MS1 annotation; MS/MS does not confirm the class
+#   ms1_only  no matched fragment                                        -> MS1 annotation
+#   class_rule chains: >= 2 chain fragments that fit one chain combination with the correct sum
+#                      (1 fragment is enough if all chains of that combination are the same) -> MS/MS confirmed
+#   Chains: report the chain combination (e.g. PC 16:0_18:1) only if fragments for all its chains are present.
+#   Two or more candidates at the same level: report all of them.
+
+meta:
+  polarity: positive
+  version: 0.7.0
+  default_adducts: ["[M+H]+", "[M+Na]+", "[M+K]+"]
+  adduct_formulas:
+    "[M+H]+":   {add: H,   charge: 1}
+    "[M+Li]+":  {add: Li,  charge: 1}
+    "[M+Na]+":  {add: Na,  charge: 1}
+    "[M+K]+":   {add: K,   charge: 1}
+    "[M+NH4]+": {add: NH4, charge: 1}
+
+entries:
+
+  # ---------------- PC ----------------
+  - class: PC
+    comp_db_headgroup: PC
+    adduct: "[M+H]+"
+    n_chains: 2
+    fragments:
+      - {type: ion, formula: C5H15NO4P, name: "phosphocholine", role: diagnostic}
+      - {type: ion, formula: C2H6O4P,   name: "cyclophosphane", role: supporting}
+      - {type: nl,  formula: C5H14NO4P, name: "loss of phosphocholine", role: supporting}
+      - {type: nl,  formula: C3H9N,     name: "loss of N(CH3)3", role: supporting}
+    chain_fragments:
+      - {template: fa_acid_loss}
+      - {template: fa_ketene_loss}
+
+  - class: PC
+    comp_db_headgroup: PC
+    adduct: "[M+Li]+"
+    n_chains: 2
+    fragments:
+      - {type: nl,  formula: C3H9N,       name: "loss of N(CH3)3", role: supporting}
+      - {type: nl,  formula: C5H14NO4P,   name: "loss of phosphocholine", role: diagnostic}
+      - {type: nl,  formula: C5H13NO4PLi, name: "loss of lithium cholinephosphate", role: diagnostic}
+      - {type: ion, formula: C2H5O4PLi,   name: "lithiated cyclophosphane", role: supporting}
+    chain_fragments: []
+
+  - class: PC
+    comp_db_headgroup: PC
+    adduct: "[M+Na]+"
+    n_chains: 2
+    fragments:
+      - {type: nl,  formula: C3H9N,       name: "loss of N(CH3)3", role: diagnostic}
+      - {type: nl,  formula: C5H14NO4P,   name: "loss of phosphocholine", role: supporting}
+      - {type: nl,  formula: C5H13NO4PNa, name: "loss of sodium cholinephosphate", role: diagnostic}
+      - {type: ion, formula: C2H5O4PNa,   name: "sodiated cyclophosphane", role: diagnostic}
+    chain_fragments: []
+
+  - class: PC
+    comp_db_headgroup: PC
+    adduct: "[M+K]+"
+    n_chains: 2
+    fragments:
+      - {type: nl,  formula: C3H9N,      name: "loss of N(CH3)3", role: supporting}
+      - {type: nl,  formula: C5H13NO4PK, name: "loss of potassium cholinephosphate", role: diagnostic}
+      - {type: ion, formula: C2H5O4PK,   name: "potassiated cyclophosphane", role: diagnostic}
+    chain_fragments: []
+
+  # ---------------- PE ----------------
+  - class: PE
+    comp_db_headgroup: PE
+    adduct: "[M+H]+"
+    n_chains: 2
+    fragments:
+      - {type: nl, formula: C2H8NO4P, name: "loss of phosphoethanolamine", role: diagnostic}
+    chain_fragments:
+      - {template: acylium}
+
+  - class: PE
+    comp_db_headgroup: PE
+    adduct: "[M+Li]+"
+    n_chains: 2
+    fragments:
+      - {type: nl,  formula: C2H5N,      name: "loss of aziridine", role: supporting}
+      - {type: nl,  formula: C2H8NO4P,   name: "loss of phosphoethanolamine", role: diagnostic}
+      - {type: nl,  formula: C2H7NO4PLi, name: "loss of lithium phosphoethanolamine", role: diagnostic}
+      - {type: ion, formula: C2H8NO4PLi, name: "[phosphoethanolamine + Li]+", role: supporting}
+    chain_fragments:
+      - {template: fa_acid_loss, plus: C2H5N}
+
+  - class: PE
+    comp_db_headgroup: PE
+    adduct: "[M+Na]+"
+    n_chains: 2
+    fragments:
+      - {type: nl,  formula: C2H5N,      name: "loss of aziridine", role: diagnostic}
+      - {type: ion, formula: C2H8NO4PNa, name: "[phosphoethanolamine + Na]+", role: diagnostic}
+    chain_fragments: []
+
+  # ---------------- SM ----------------
+  # SM and PC share the choline fragments; the precursor m/z separates them.
+  - class: SM
+    comp_db_headgroup: SM
+    adduct: "[M+H]+"
+    n_chains: 0
+    fragments:
+      - {type: ion, formula: C5H15NO4P, name: "phosphocholine", role: diagnostic}
+    chain_fragments: []
+
+  - class: SM
+    comp_db_headgroup: SM
+    adduct: "[M+Li]+"
+    n_chains: 0
+    fragments:
+      - {type: nl,  formula: C3H9N,       name: "loss of N(CH3)3", role: supporting}
+      - {type: nl,  formula: C5H14NO4P,   name: "loss of phosphocholine", role: diagnostic}
+      - {type: nl,  formula: C5H13NO4PLi, name: "loss of lithium cholinephosphate", role: diagnostic}
+      - {type: ion, formula: C2H5O4PLi,   name: "lithiated cyclophosphane", role: supporting}
+    chain_fragments: []
+
+  - class: SM
+    comp_db_headgroup: SM
+    adduct: "[M+Na]+"
+    n_chains: 0
+    fragments:
+      - {type: nl,  formula: C3H9N,       name: "loss of N(CH3)3", role: diagnostic}
+      - {type: nl,  formula: C5H14NO4P,   name: "loss of phosphocholine", role: supporting}
+      - {type: nl,  formula: C5H13NO4PNa, name: "loss of sodium cholinephosphate", role: diagnostic}
+      - {type: ion, formula: C2H5O4PNa,   name: "sodiated cyclophosphane", role: diagnostic}
+    chain_fragments: []
+
+  - class: SM
+    comp_db_headgroup: SM
+    adduct: "[M+K]+"
+    n_chains: 0
+    fragments:
+      - {type: nl,  formula: C3H9N,      name: "loss of N(CH3)3", role: supporting}
+      - {type: nl,  formula: C5H13NO4PK, name: "loss of potassium cholinephosphate", role: diagnostic}
+      - {type: ion, formula: C2H5O4PK,   name: "potassiated cyclophosphane", role: diagnostic}
+    chain_fragments: []
+
+  # ---------------- PS ----------------
+  - class: PS
+    comp_db_headgroup: PS
+    adduct: "[M+H]+"
+    n_chains: 2
+    fragments:
+      - {type: nl, formula: C3H8NO6P, name: "loss of phosphoserine", role: diagnostic}
+    chain_fragments: []
+
+  # ---------------- TG ----------------
+  # TG has no head group: class_rule chains.
+  - class: TG
+    comp_db_headgroup: TG
+    adduct: "[M+Na]+"
+    n_chains: 3
+    class_rule: chains
+    fragments: []
+    chain_fragments:
+      - {template: fa_acid_loss}
+      - {template: fa_na_salt_loss}
+
+  - class: TG
+    comp_db_headgroup: TG
+    adduct: "[M+NH4]+"
+    n_chains: 3
+    class_rule: chains
+    fragments: []
+    chain_fragments:
+      - {template: fa_acid_loss, plus: NH3}
+
+  - class: TG
+    comp_db_headgroup: TG
+    adduct: "[M+Li]+"
+    n_chains: 3
+    class_rule: chains
+    fragments: []
+    chain_fragments:
+      - {template: fa_acid_loss}
+      - {template: fa_li_salt_loss}
+
+  # ---------------- DG ----------------
+  - class: DG
+    comp_db_headgroup: DG
+    adduct: "[M+NH4]+"
+    n_chains: 2
+    class_rule: chains
+    fragments: []
+    chain_fragments:
+      - {template: fa_acid_loss, plus: NH3}
+
+  - class: DG
+    comp_db_headgroup: DG
+    adduct: "[M+Na]+"
+    n_chains: 2
+    class_rule: chains
+    fragments: []
+    chain_fragments:
+      - {template: fa_na_ion}
+
+  - class: DG
+    comp_db_headgroup: DG
+    adduct: "[M+K]+"
+    n_chains: 2
+    class_rule: chains
+    fragments: []
+    chain_fragments:
+      - {template: fa_k_ion}
+
+  # ---------------- MG ----------------
+  - class: MG
+    comp_db_headgroup: MG
+    adduct: "[M+H]+"
+    n_chains: 1
+    class_rule: chains
+    fragments: []
+    chain_fragments:
+      - {template: acylium}
+
+  # ---------------- Lyso classes (one chain; same head-group chemistry as the diacyl class) ----------------
+  - class: LPC
+    comp_db_headgroup: PC
+    adduct: "[M+H]+"
+    n_chains: 1
+    fragments:
+      - {type: ion, formula: C5H15NO4P, name: "phosphocholine", role: diagnostic}
+      - {type: ion, formula: C2H6O4P,   name: "cyclophosphane", role: supporting}
+      - {type: ion, formula: C5H14NO,   name: "choline", role: supporting}
+    chain_fragments: []
+
+  - class: LPC
+    comp_db_headgroup: PC
+    adduct: "[M+Li]+"
+    n_chains: 1
+    fragments:
+      - {type: nl, formula: C3H9N,       name: "loss of N(CH3)3", role: diagnostic}
+      - {type: nl, formula: C5H14NO4P,   name: "loss of phosphocholine", role: supporting}
+      - {type: nl, formula: C5H13NO4PLi, name: "loss of lithium cholinephosphate", role: supporting}
+    chain_fragments: []
+
+  - class: LPC
+    comp_db_headgroup: PC
+    adduct: "[M+Na]+"
+    n_chains: 1
+    fragments:
+      - {type: ion, formula: C2H5O4PNa, name: "sodiated cyclophosphane", role: diagnostic}
+    chain_fragments: []
+
+  - class: LPC
+    comp_db_headgroup: PC
+    adduct: "[M+K]+"
+    n_chains: 1
+    fragments:
+      - {type: ion, formula: C2H5O4PK, name: "potassiated cyclophosphane", role: diagnostic}
+    chain_fragments: []
+
+  - class: LPE
+    comp_db_headgroup: PE
+    adduct: "[M+H]+"
+    n_chains: 1
+    fragments:
+      - {type: nl, formula: C2H8NO4P, name: "loss of phosphoethanolamine", role: diagnostic}
+    chain_fragments: []
+
+chain_templates:
+  fa_acid_loss:    {type: nl,  formula: "C{n}H{2n-2d}O2",     name: "loss of FA {n}:{d} (acid)"}
+  fa_ketene_loss:  {type: nl,  formula: "C{n}H{2n-2d-2}O",    name: "loss of FA {n}:{d} (ketene)"}
+  fa_na_salt_loss: {type: nl,  formula: "C{n}H{2n-2d-1}O2Na", name: "loss of FA {n}:{d} (Na salt)"}
+  fa_li_salt_loss: {type: nl,  formula: "C{n}H{2n-2d-1}O2Li", name: "loss of FA {n}:{d} (Li salt)"}
+  fa_k_salt_loss:  {type: nl,  formula: "C{n}H{2n-2d-1}O2K",  name: "loss of FA {n}:{d} (K salt)"}
+  fa_na_ion:       {type: ion, formula: "C{n}H{2n-2d}O2Na",   charge: 1, name: "[FA {n}:{d}+Na]+"}
+  fa_k_ion:        {type: ion, formula: "C{n}H{2n-2d}O2K",    charge: 1, name: "[FA {n}:{d}+K]+"}
+  acylium:         {type: ion, formula: "C{n}H{2n-2d-1}O",    charge: 1, name: "acylium FA {n}:{d}"}
+
+chain_range:
+  carbons: [12, 26]
+  double_bonds: [0, 6]

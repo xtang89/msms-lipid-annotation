@@ -1,0 +1,169 @@
+# Rule file: negative mode. Version 0.7.0 (2026-11-22). Only rules confirmed in the literature are included.
+# References: see references.md in this folder.
+#
+# Fields
+#   fragments        class-level fragments. type ion: ion formula without charge (charge -1 unless stated).
+#                    type nl: neutral loss from the precursor.
+#   role             diagnostic = specific to the head group with this adduct; one is enough for the class
+#                    supporting = agrees with the class; increases confidence; cannot identify the class alone
+#   chain_fragments  templates from chain_templates; one fragment per possible chain (n:d).
+#                    plus: formula added to the neutral loss.
+#   class_rule       chains = class with no head group (TG, DG, MG): the class evidence comes from chain fragments
+#
+# Decision for each candidate (a fragment counts only above the intensity threshold)
+#   high      >= 2 diagnostic, or 1 diagnostic + >= 1 supporting        -> MS/MS confirmed
+#   medium    1 diagnostic only                                          -> MS/MS confirmed
+#   low       supporting only                                            -> MS1 annotation; MS/MS does not confirm the class
+#   ms1_only  no matched fragment                                        -> MS1 annotation
+#   class_rule chains: >= 2 chain fragments that fit one chain combination with the correct sum
+#                      (1 fragment is enough if all chains of that combination are the same) -> MS/MS confirmed
+#   Chains: report the chain combination (e.g. PC 16:0_18:1) only if fragments for all its chains are present.
+#   Two or more candidates at the same level: report all of them.
+
+meta:
+  polarity: negative
+  version: 0.7.0
+  default_adducts: ["[M-H]-", "[M+HCOO]-"]
+  adduct_formulas:
+    "[M-H]-":      {remove: H,   charge: -1}
+    "[M+HCOO]-":   {add: CHO2,   charge: -1}
+    "[M+CH3COO]-": {add: C2H3O2, charge: -1}
+    "[M-2H]2-":    {remove: H2,  charge: -2}
+
+entries:
+
+  # ---------------- PC ----------------
+  - class: PC
+    comp_db_headgroup: PC
+    adduct: "[M+HCOO]-"
+    n_chains: 2
+    fragments:
+      - {type: nl,  formula: C2H4O2,    name: "loss of HCOO + CH3 ([M-CH3]-)", role: diagnostic}
+      - {type: ion, formula: C4H11NO4P, charge: -1, name: "demethylated phosphocholine", role: supporting}
+      - {type: ion, formula: C7H15NO5P, charge: -1, name: "demethylated glycerophosphocholine - H2O", role: supporting}
+    chain_fragments:
+      - {template: fa_anion}
+
+  - class: PC
+    comp_db_headgroup: PC
+    adduct: "[M+CH3COO]-"
+    n_chains: 2
+    fragments:
+      - {type: nl,  formula: C3H6O2,    name: "loss of CH3COO + CH3 ([M-CH3]-)", role: diagnostic}
+      - {type: ion, formula: C4H11NO4P, charge: -1, name: "demethylated phosphocholine", role: supporting}
+    chain_fragments:
+      - {template: fa_anion}
+
+  # ---------------- PE ----------------
+  - class: PE
+    comp_db_headgroup: PE
+    adduct: "[M-H]-"
+    n_chains: 2
+    fragments:
+      - {type: ion, formula: C2H7NO4P,  charge: -1, name: "phosphoethanolamine - H", role: diagnostic}
+      - {type: ion, formula: C5H11NO5P, charge: -1, name: "glycerophosphoethanolamine - H2O - H", role: diagnostic}
+    chain_fragments:
+      - {template: fa_anion}
+      - {template: fa_ketene_loss}
+
+  # ---------------- PI ----------------
+  - class: PI
+    comp_db_headgroup: PI
+    adduct: "[M-H]-"
+    n_chains: 2
+    fragments:
+      - {type: ion, formula: C6H10O8P, charge: -1, name: "inositol phosphate - H2O", role: diagnostic}
+      - {type: ion, formula: C6H12O9P, charge: -1, name: "inositol phosphate", role: supporting}
+      - {type: ion, formula: C6H8O7P,  charge: -1, name: "inositol phosphate - 2H2O", role: supporting}
+    chain_fragments:
+      - {template: fa_anion}
+      - {template: fa_acid_loss}
+
+  # ---------------- PS ----------------
+  - class: PS
+    comp_db_headgroup: PS
+    adduct: "[M-H]-"
+    n_chains: 2
+    fragments:
+      - {type: nl, formula: C3H5NO2, name: "loss of serine", role: diagnostic}
+    chain_fragments:
+      - {template: fa_anion}
+      - {template: fa_acid_loss, plus: C3H5NO2}
+
+  # ---------------- PG ----------------
+  # m/z 153 occurs for all glycerophospholipid classes, so it is supporting only.
+  # BMP is an isomer of PG and is not separated by these rules.
+  - class: PG
+    comp_db_headgroup: PG
+    adduct: "[M-H]-"
+    n_chains: 2
+    fragments:
+      - {type: ion, formula: C3H8O6P, charge: -1, name: "glycerophosphate", role: diagnostic}
+      - {type: ion, formula: C3H6O5P, charge: -1, name: "glycerophosphate - H2O", role: supporting}
+    chain_fragments:
+      - {template: fa_anion}
+      - {template: fa_acid_loss}
+
+  # ---------------- CL ----------------
+
+  # ---------------- Lyso classes (one chain; same head-group chemistry as the diacyl class) ----------------
+  - class: LPC
+    comp_db_headgroup: PC
+    adduct: "[M+HCOO]-"
+    n_chains: 1
+    fragments:
+      - {type: nl, formula: C2H4O2, name: "loss of HCOO + CH3 ([M-CH3]-)", role: diagnostic}
+    chain_fragments: []
+
+  - class: LPE
+    comp_db_headgroup: PE
+    adduct: "[M-H]-"
+    n_chains: 1
+    fragments:
+      - {type: ion, formula: C5H11NO5P, charge: -1, name: "glycerophosphoethanolamine - H2O - H", role: diagnostic}
+    chain_fragments: []
+
+  - class: LPI
+    comp_db_headgroup: PI
+    adduct: "[M-H]-"
+    n_chains: 1
+    fragments:
+      - {type: ion, formula: C6H10O8P, charge: -1, name: "inositol phosphate - H2O", role: diagnostic}
+      - {type: ion, formula: C6H12O9P, charge: -1, name: "inositol phosphate", role: supporting}
+      - {type: ion, formula: C6H8O7P,  charge: -1, name: "inositol phosphate - 2H2O", role: supporting}
+    chain_fragments: []
+
+  - class: LPS
+    comp_db_headgroup: PS
+    adduct: "[M-H]-"
+    n_chains: 1
+    fragments:
+      - {type: nl, formula: C3H5NO2, name: "loss of serine", role: diagnostic}
+    chain_fragments: []
+
+# Prostaglandins are not in COMP_DB: fixed precursor formulas.
+fixed_precursors:
+  - name: "PGE2 / PGD2 / PGH2"
+    formula: C20H32O5
+    adduct: "[M-H]-"
+    note: "isomers with the same product-ion spectrum; these rules do not separate them"
+    fragments:
+      - {type: nl, formula: H2O,     name: "loss of H2O", role: supporting}
+      - {type: nl, formula: CH4O4,   name: "loss of 2H2O + CO2", role: supporting}
+      - {type: nl, formula: C7H14O4, name: "loss of C7H14O4", role: diagnostic}
+
+  - name: "PGF2a"
+    formula: C20H34O5
+    adduct: "[M-H]-"
+    fragments:
+      - {type: nl,  formula: C2H4O,    name: "loss of C2H4O", role: supporting}
+      - {type: ion, formula: C12H17O2, charge: -1, name: "C12H17O2-", role: diagnostic}
+
+chain_templates:
+  fa_anion:       {type: ion, formula: "C{n}H{2n-2d-1}O2", charge: -1, name: "FA {n}:{d} anion"}
+  fa_acid_loss:   {type: nl,  formula: "C{n}H{2n-2d}O2",   name: "loss of FA {n}:{d} (acid)"}
+  fa_ketene_loss: {type: nl,  formula: "C{n}H{2n-2d-2}O",  name: "loss of FA {n}:{d} (ketene)"}
+
+chain_range:
+  carbons: [12, 26]
+  double_bonds: [0, 6]
